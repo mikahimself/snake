@@ -4,4 +4,6 @@
 
 [node name="SnakeTile" type="Sprite"]
 scale = Vector2( 2, 2 )
+z_index = 10
 texture = ExtResource( 1 )
+centered = false

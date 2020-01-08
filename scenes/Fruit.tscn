@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://art/fruit.png" type="Texture" id=1]
+
+[node name="Fruit" type="Sprite"]
+scale = Vector2( 2, 2 )
+z_index = 5
+texture = ExtResource( 1 )
+centered = false
