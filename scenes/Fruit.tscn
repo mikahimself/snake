@@ -6,4 +6,3 @@
 scale = Vector2( 2, 2 )
 z_index = 5
 texture = ExtResource( 1 )
-centered = false
