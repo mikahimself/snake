@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/snake-corner-84.png-2c1b3e71f0efd4a7844e70d813175c5e.stex"
+path="res://.import/border-tile-top.png-5e7336c7d8dffcd403e4625a9a08ff46.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/snake-corner-84.png"
-dest_files=[ "res://.import/snake-corner-84.png-2c1b3e71f0efd4a7844e70d813175c5e.stex" ]
+source_file="res://art/border-tile-top.png"
+dest_files=[ "res://.import/border-tile-top.png-5e7336c7d8dffcd403e4625a9a08ff46.stex" ]
 
 [params]
 
@@ -20,7 +20,7 @@ compress/hdr_mode=0
 compress/bptc_ldr=0
 compress/normal_map=0
 flags/repeat=0
-flags/filter=false
+flags/filter=true
 flags/mipmaps=false
 flags/anisotropic=false
 flags/srgb=2

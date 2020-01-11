@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://art/border-tile.png" type="Texture" id=1]
+
+[node name="BorderTile" type="Sprite"]
+texture = ExtResource( 1 )
