@@ -14,6 +14,7 @@ var loop_borders: bool = false
 onready var snake_tile: PackedScene = preload("res://scenes/SnakeTile.tscn")
 onready var snake_head_tile: PackedScene = preload("res://scenes/SnakeHeadTile.tscn")
 onready var snake_corner = preload("res://art/snake-corner-tile.png")
+onready var snake_corner_alt = preload("res://art/snake-corner-tile-alt.png")
 onready var snake_body = preload("res://art/snake-tile.png")
 onready var snake_head = preload("res://art/snake-head-tile.png")
 onready var snake_tiles = $SnakeTiles
@@ -58,7 +59,7 @@ func check_input() -> void:
 		direction = directions.UP
 	if Input.is_action_pressed("ui_down") and direction != directions.UP:
 		direction = directions.DOWN
-	if Input.is_action_pressed("ui_select"):
+	if Input.is_action_pressed("grow_snake"):
 		eat_fruit()
 
 func calculate_snake_position() -> void:
@@ -112,46 +113,59 @@ func draw_snake() -> void:
 		tiles[i].position = tile_pos[i]
 		if i > 0:
 			tiles[i].set_texture(snake_body)
-			tiles[0].flip_h = false
+			tiles[i].flip_v = false
+			tiles[i].flip_h = false
+			tiles[i].rotation_degrees = 0
+
 			if tile_pos[i - 1].x < tile_pos[i].x:
-				tiles[i].rotation_degrees = 0
 				var next_tile = i + 1
 				if next_tile < tile_pos.size():
 					if tile_pos[i + 1].y < tile_pos[i].y:
 						tiles[i].set_texture(snake_corner)
 						tiles[i].rotation_degrees = 270
 					elif tile_pos[i + 1].y > tile_pos[i].y:
-						tiles[i].set_texture(snake_corner)
+						tiles[i].set_texture(snake_corner_alt)
 						tiles[i].rotation_degrees = 180
+					else:
+						tiles[i].flip_v = true
+				else:
+					tiles[i].flip_v = true
+			
 			elif tile_pos[i - 1].x > tile_pos[i].x:
 				tiles[i].rotation_degrees = 0
 				var next_tile = i + 1
 				if next_tile < tile_pos.size():
 					if tile_pos[i + 1].y < tile_pos[i].y:
-						tiles[i].set_texture(snake_corner)
+						tiles[i].set_texture(snake_corner_alt)
 					elif tile_pos[i + 1].y > tile_pos[i].y:
 						tiles[i].set_texture(snake_corner)
 						tiles[i].rotation_degrees = 90
-
+			# Going up
 			elif tile_pos[i - 1].y < tile_pos[i].y:
 				var next_tile = i + 1
 				if next_tile < tile_pos.size():
 					if tile_pos[i + 1].x < tile_pos[i].x:
-						tiles[i].set_texture(snake_corner)
+						tiles[i].set_texture(snake_corner_alt)
 						tiles[i].rotation_degrees = 270
+					
 					elif tile_pos[i + 1].x > tile_pos[i].x:
 						tiles[i].set_texture(snake_corner)
 						tiles[i].rotation_degrees = 0
 					else:
 						tiles[i].rotation_degrees = 90
+						tiles[i].flip_v = true
 				else:
 					tiles[i].rotation_degrees = 90
+					tiles[i].flip_v = true
+			
+			# Going Down					
 			elif tile_pos[i - 1].y > tile_pos[i].y:
 				var next_tile = i + 1
 				if next_tile < tile_pos.size():
 					if tile_pos[i + 1].x > tile_pos[i].x:
-						tiles[i].set_texture(snake_corner)
+						tiles[i].set_texture(snake_corner_alt)
 						tiles[i].rotation_degrees = 90
+
 					elif tile_pos[i + 1].x < tile_pos[i].x:
 						tiles[i].set_texture(snake_corner)
 						tiles[i].rotation_degrees = 180
@@ -159,6 +173,8 @@ func draw_snake() -> void:
 						tiles[i].rotation_degrees = 90
 				else:
 					tiles[i].rotation_degrees = 90
+					
+				
 	tiles[-1].visible = true
 	
 func check_for_fruit(fruit_position) -> void:

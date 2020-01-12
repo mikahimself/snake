@@ -4,6 +4,8 @@ extends Node2D
 var rows: int = 25
 var cols: int = 25
 
+var pause_state: bool = false
+
 var rng: RandomNumberGenerator
 
 var screen_w: int = 768
@@ -13,7 +15,7 @@ var start_x: int = 120
 var start_y: int = 56
 var offset: int = 24
 var game_on: bool = true
-var move_time_step: float = 0.2
+var move_time_step: float = 0.1
 var current_move_time: float = 0.0
 var snake_length: int = 0
 var special_spawn_limit = 10
@@ -24,6 +26,7 @@ onready var fruit_scene: PackedScene = preload("res://scenes/Fruit.tscn")
 onready var special_scene: PackedScene = preload("res://scenes/Special.tscn")
 onready var border_scene: PackedScene = preload("res://scenes/BorderTile.tscn")
 onready var special_spawn_timer: Timer = get_node("SpecialSpawnTimer")
+onready var game_over_screen = get_node("GameOverScreen")
 
 var border_top = preload("res://art/border-tile-top.png")
 
@@ -36,7 +39,6 @@ func _ready():
     rng.randomize()
     spawn_snake()
     spawn_fruit()
-    draw_border()
 
 func spawn_snake() -> void:
     snake = snake_scene.instance()
@@ -58,47 +60,22 @@ func spawn_special() -> void:
     add_child(special)
     move_special()
     
-func draw_border():
-    for i in range(0,27):
-        var top = border_scene.instance()
-        top.position = Vector2(i * 16 + 8, 8)
-        top.rotation_degrees = 180
-        add_child(top)
-    for i in range(1,27):
-        var bottom = border_scene.instance()
-        bottom.position = Vector2(i * 16 + 8, 424)
-        bottom.rotation_degrees = 90
-        add_child(bottom)
-
-    for i in range(1,27):
-        var left = border_scene.instance()
-        left.position = Vector2(8, i * 16 + 8)
-        left.rotation_degrees = 180
-        add_child(left)
-
-        var right = border_scene.instance()
-        right.position = Vector2(424, i * 16 + 8)
-        right.rotation_degrees = 270
-        add_child(right)
-
-
 func _draw():
-    draw_rect(Rect2(Vector2(0,0), Vector2(432,432)), Color("#dff9fb"))
-    #c7ecee
-    draw_rect(Rect2(Vector2(432,0), Vector2(384,432)), Color("#7ed6df"))
-    draw_rect(Rect2(Vector2(448,16), Vector2(304,400)), Color("#dff9fb"))
-    #draw_line(Vector2(0,432), Vector2(432, 432), Color("2980b9"), 5)
-    #draw_line(Vector2(431,0), Vector2(431, 432), Color("2980b9"), 2)
-
-    for i in range(1,26):
-        draw_line(Vector2(i * 16,0), Vector2(i * 16, 432), Color("#c7ecee"), 1)
-        draw_line(Vector2(0,i * 16), Vector2(432, i * 16), Color("#c7ecee"), 1)
-
+    draw_rect(Rect2(Vector2(16,16), Vector2(400,400)), Color("#01c4e7"))
+    draw_rect(Rect2(Vector2(32,32), Vector2(368,368)), Color("#000000"))
+   
+    draw_rect(Rect2(Vector2(448,16), Vector2(304,400)), Color("#01c4e7"))
+    draw_rect(Rect2(Vector2(464,32), Vector2(272,368)), Color("#000000"))
+   
+    for i in range(2,26):
+        draw_line(Vector2(464, i * 16), Vector2(736, i * 16), Color("#c501e2"), 1)
+    for i in range(0, 18):
+        draw_line(Vector2(i * 16 + 464, 32), Vector2(i * 16 + 464, 400), Color("#c501e2"), 1)
 
 func move_fruit() -> void:
     fruit.scale = Vector2.ZERO
-    var new_col = rng.randi_range(1, cols - 2)
-    var new_row = rng.randi_range(1, rows - 2)
+    var new_col = rng.randi_range(2, cols - 3)
+    var new_row = rng.randi_range(2, rows - 3)
     var new_pos = Vector2(new_col * tile_size + offset, new_row * tile_size + offset)
 
     if snake.is_fruit_under_snake(new_pos):
@@ -107,11 +84,12 @@ func move_fruit() -> void:
         fruit.position = new_pos
 
     fruit.get_node("AnimationPlayer").play("Spawn")
+    fruit.get_node("AnimationPlayer").queue("Pulse")
 
 
 func move_special() -> void:
-    var new_col = rng.randi_range(1, cols - 2)
-    var new_row = rng.randi_range(1, rows - 2)
+    var new_col = rng.randi_range(2, cols - 3)
+    var new_row = rng.randi_range(2, rows - 3)
     var new_pos = Vector2(new_col * tile_size + offset, new_row * tile_size + offset)
 
     if snake.is_fruit_under_snake(new_pos) or new_pos == fruit.position:
@@ -121,6 +99,9 @@ func move_special() -> void:
         special.position = new_pos
 
 func _process(delta) -> void:
+
+    handle_input()
+
     if game_on:
         snake.check_input()
         current_move_time += delta
@@ -133,8 +114,27 @@ func _process(delta) -> void:
                 snake.check_for_special(special.position)
             current_move_time = 0
 
+func handle_input():
+    if Input.is_action_pressed("reset_game"):
+        reset_game()
+    if Input.is_action_pressed("ui_select") and not game_on:
+        reset_game()
+
+func reset_game():
+    snake_length = 0
+    snake.queue_free()
+    fruit.queue_free()
+    spawn_snake()
+    spawn_fruit()
+    get_tree().paused = false
+    game_on = true
+    game_over_screen.visible = false
+    if special:
+        special.set_disabled(true)
+
 func on_snake_dead():
     game_on = false
+    $GameOverTimer.start()
 
 func on_snake_ate_fruit():
     move_fruit()
@@ -151,3 +151,6 @@ func on_snake_grew():
 
 func _on_SpecialSpawnTimer_timeout():
     spawn_special()
+
+func _on_GameOverTimer_timeout():
+    game_over_screen.visible = true
