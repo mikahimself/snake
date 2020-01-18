@@ -84,11 +84,9 @@ func calculate_snake_position() -> void:
 			new_pos = Vector2(tiles[0].position.x, tiles[0].position.y + TILE_SIZE)
 
 	new_pos = check_borders(new_pos)
-
-	if alive:
-		tile_pos.pop_back()
-		check_for_tail(new_pos)
-		tile_pos.push_front(new_pos)
+	tile_pos.pop_back()
+	check_for_tail(new_pos)
+	tile_pos.push_front(new_pos)
 
 func check_borders(new_pos) -> Vector2:
 	if can_loop_borders:
@@ -102,16 +100,16 @@ func check_borders(new_pos) -> Vector2:
 			new_pos.y = snakelimits_right_bot.y - OFFSET
 	else:
 		if new_pos.x >= snakelimits_right_bot.x:
-			new_pos.x = snakelimits_right_bot.x
+			new_pos.x = snakelimits_right_bot.x + OFFSET
 			die()
 		if new_pos.x < snakelimits_left_top.x:
-			new_pos.x = snakelimits_left_top.x
+			new_pos.x = snakelimits_left_top.x - OFFSET
 			die()
 		if new_pos.y > snakelimits_right_bot.y:
-			new_pos.y = snakelimits_right_bot.y
+			new_pos.y = snakelimits_right_bot.y + OFFSET
 			die()
 		if new_pos.y < snakelimits_left_top.y:
-			new_pos.y = snakelimits_left_top.y
+			new_pos.y = snakelimits_left_top.y - OFFSET
 			die()
 	return new_pos
 
