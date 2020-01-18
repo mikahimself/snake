@@ -1,21 +1,30 @@
 extends Node2D
 
 # Arena Size
-var rows: int = 25
-var cols: int = 25
+var rows: int = 23
+var cols: int = 23
 
 var pause_state: bool = false
 
 var rng: RandomNumberGenerator
 
-var screen_w: int = 768
-var screen_h: int = 432
-var tile_size: int = 16
-var start_x: int = 120
-var start_y: int = 56
-var offset: int = 24
+const TILE_SIZE: int = 16
+const START_X: int = 120
+const START_Y: int = 56
+const OFFSET: int = 8
+
+# Game Area
+const ORIGIN_PLAYAREA_OUTER: Vector2 = Vector2(16, 16)
+const ORIGIN_PLAYAREA_INNER: Vector2 = Vector2(32, 32)
+const RECTSIZE_PLAYAREA_OUTER: Vector2 = Vector2(400, 400)
+const RECTSIZE_PLAYAREA_INNER: Vector2 = Vector2(368, 368)
+
+# Movement Limits for Snake
+var snakelimits_left_top: Vector2 = Vector2(ORIGIN_PLAYAREA_INNER.x, ORIGIN_PLAYAREA_INNER.y)
+var snakelimits_right_bot: Vector2 = Vector2(ORIGIN_PLAYAREA_INNER.x + RECTSIZE_PLAYAREA_INNER.x, ORIGIN_PLAYAREA_INNER.y + RECTSIZE_PLAYAREA_INNER.y)
+
 var game_on: bool = true
-var move_time_step: float = 0.1
+var move_time_step: float = 0.5
 var current_move_time: float = 0.0
 var snake_length: int = 0
 var special_spawn_limit = 10
@@ -28,13 +37,11 @@ onready var border_scene: PackedScene = preload("res://scenes/BorderTile.tscn")
 onready var special_spawn_timer: Timer = get_node("SpecialSpawnTimer")
 onready var game_over_screen = get_node("GameOverScreen")
 
-var border_top = preload("res://art/border-tile-top.png")
-
 var snake: Node2D
 var fruit: Sprite
 var special: Sprite
 
-func _ready():
+func _ready() -> void:
     rng = RandomNumberGenerator.new()
     rng.randomize()
     spawn_snake()
@@ -42,7 +49,8 @@ func _ready():
 
 func spawn_snake() -> void:
     snake = snake_scene.instance()
-    snake.start_position = Vector2(start_x, start_y)
+    snake.start_position = Vector2(START_X, START_Y)
+    snake.set_limits(snakelimits_left_top, snakelimits_right_bot)
     snake.connect("snake_died", self, "on_snake_dead")
     snake.connect("snake_size_grew", self, "on_snake_grew")
     snake.connect("ate_fruit", self, "on_snake_ate_fruit")
@@ -60,24 +68,24 @@ func spawn_special() -> void:
     add_child(special)
     move_special()
     
-func _draw():
-    draw_rect(Rect2(Vector2(16,16), Vector2(400,400)), Color("#01c4e7"))
-    draw_rect(Rect2(Vector2(32,32), Vector2(368,368)), Color("#000000"))
+func _draw() -> void:
+    draw_rect(Rect2(ORIGIN_PLAYAREA_OUTER, RECTSIZE_PLAYAREA_OUTER), Color("#01c4e7"))
+    draw_rect(Rect2(ORIGIN_PLAYAREA_INNER, RECTSIZE_PLAYAREA_INNER), Color("#000000"))
    
     draw_rect(Rect2(Vector2(448,16), Vector2(304,400)), Color("#01c4e7"))
     draw_rect(Rect2(Vector2(464,32), Vector2(272,368)), Color("#000000"))
    
     for i in range(2,26):
-        draw_line(Vector2(464, i * 16), Vector2(736, i * 16), Color("#c501e2"), 1)
+        draw_line(Vector2(464, i * TILE_SIZE), Vector2(736, i * TILE_SIZE), Color("#c501e2"), 1)
     for i in range(0, 18):
-        draw_line(Vector2(i * 16 + 464, 32), Vector2(i * 16 + 464, 400), Color("#c501e2"), 1)
+        draw_line(Vector2(i * TILE_SIZE + 464, 32), Vector2(i * TILE_SIZE + 464, 400), Color("#c501e2"), 1)
 
 func move_fruit() -> void:
     fruit.scale = Vector2.ZERO
-    var new_col = rng.randi_range(2, cols - 3)
-    var new_row = rng.randi_range(2, rows - 3)
-    var new_pos = Vector2(new_col * tile_size + offset, new_row * tile_size + offset)
-
+    var new_col = rng.randi_range(1, cols - 2)
+    var new_row = rng.randi_range(1, rows - 2)
+    var new_pos = Vector2(ORIGIN_PLAYAREA_INNER.x + TILE_SIZE * new_col + OFFSET, ORIGIN_PLAYAREA_INNER.y + TILE_SIZE * new_col + OFFSET)
+    
     if snake.is_fruit_under_snake(new_pos):
         move_fruit()
     else:
@@ -88,9 +96,9 @@ func move_fruit() -> void:
 
 
 func move_special() -> void:
-    var new_col = rng.randi_range(2, cols - 3)
-    var new_row = rng.randi_range(2, rows - 3)
-    var new_pos = Vector2(new_col * tile_size + offset, new_row * tile_size + offset)
+    var new_col = rng.randi_range(1, cols - 2)
+    var new_row = rng.randi_range(1, rows - 2)
+    var new_pos = Vector2(ORIGIN_PLAYAREA_INNER.x + TILE_SIZE * new_col + OFFSET, ORIGIN_PLAYAREA_INNER.y + TILE_SIZE * new_col + OFFSET)
 
     if snake.is_fruit_under_snake(new_pos) or new_pos == fruit.position:
         move_special()
@@ -99,9 +107,7 @@ func move_special() -> void:
         special.position = new_pos
 
 func _process(delta) -> void:
-
     handle_input()
-
     if game_on:
         snake.check_input()
         current_move_time += delta
@@ -114,13 +120,13 @@ func _process(delta) -> void:
                 snake.check_for_special(special.position)
             current_move_time = 0
 
-func handle_input():
+func handle_input() -> void:
     if Input.is_action_pressed("reset_game"):
         reset_game()
     if Input.is_action_pressed("ui_select") and not game_on:
         reset_game()
 
-func reset_game():
+func reset_game() -> void:
     snake_length = 0
     snake.queue_free()
     fruit.queue_free()
@@ -132,25 +138,25 @@ func reset_game():
     if special:
         special.set_disabled(true)
 
-func on_snake_dead():
+func on_snake_dead() -> void:
     game_on = false
     $GameOverTimer.start()
 
-func on_snake_ate_fruit():
+func on_snake_ate_fruit() -> void:
     move_fruit()
 
-func on_snake_ate_special():
+func on_snake_ate_special() -> void:
     special.set_disabled(true)
     print("ate special")
 
-func on_snake_grew():
+func on_snake_grew() -> void:
     snake_length += 1
     print("Snake len: ", snake_length)
     if snake_length >= special_spawn_limit and snake_length % special_spawn_divisor == 0:
         special_spawn_timer.start()
 
-func _on_SpecialSpawnTimer_timeout():
+func _on_SpecialSpawnTimer_timeout() -> void:
     spawn_special()
 
-func _on_GameOverTimer_timeout():
+func _on_GameOverTimer_timeout() -> void:
     game_over_screen.visible = true

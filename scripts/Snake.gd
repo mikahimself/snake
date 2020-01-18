@@ -4,12 +4,17 @@ enum directions { UP, DOWN, LEFT, RIGHT }
 var direction
 var previous_direction
 
-var tile_size: int = 16
+const TILE_SIZE: int = 16
+const OFFSET: int = 8
 var tiles: Array = []
 var tile_pos: Array = []
 var last_pos: Vector2 = Vector2.ZERO
 var start_position: Vector2
-var loop_borders: bool = false
+var can_loop_borders: bool = false
+
+# Play Area limits
+var snakelimits_left_top: Vector2
+var snakelimits_right_bot: Vector2
 
 onready var snake_tile: PackedScene = preload("res://scenes/SnakeTile.tscn")
 onready var snake_head_tile: PackedScene = preload("res://scenes/SnakeHeadTile.tscn")
@@ -38,7 +43,7 @@ func _ready() -> void:
 
 	for i in range(3):
 		var body_tile = snake_tile.instance()
-		body_tile.position = Vector2(start_position.x - tile_size - tile_size * i, start_position.y)
+		body_tile.position = Vector2(start_position.x - TILE_SIZE - TILE_SIZE * i, start_position.y)
 		snake_tiles.add_child(body_tile) 
 		tiles.append(body_tile)
 		tile_pos.append(body_tile.position)
@@ -47,8 +52,11 @@ func _ready() -> void:
 
 	direction = directions.RIGHT
 
-func check_input() -> void:
+func set_limits(snakelimits_lt, snakelimits_rb) -> void:
+	snakelimits_left_top = snakelimits_lt
+	snakelimits_right_bot = snakelimits_rb
 
+func check_input() -> void:
 	previous_direction = direction
 
 	if Input.is_action_pressed("ui_left") and direction != directions.RIGHT:
@@ -67,13 +75,13 @@ func calculate_snake_position() -> void:
 
 	match direction:
 		directions.LEFT:
-			new_pos = Vector2(tiles[0].position.x - tile_size, tiles[0].position.y)
+			new_pos = Vector2(tiles[0].position.x - TILE_SIZE, tiles[0].position.y)
 		directions.RIGHT:
-			new_pos = Vector2(tiles[0].position.x + tile_size, tiles[0].position.y)
+			new_pos = Vector2(tiles[0].position.x + TILE_SIZE, tiles[0].position.y)
 		directions.UP:
-			new_pos = Vector2(tiles[0].position.x, tiles[0].position.y - tile_size)
+			new_pos = Vector2(tiles[0].position.x, tiles[0].position.y - TILE_SIZE)
 		directions.DOWN:
-			new_pos = Vector2(tiles[0].position.x, tiles[0].position.y + tile_size)
+			new_pos = Vector2(tiles[0].position.x, tiles[0].position.y + TILE_SIZE)
 
 	new_pos = check_borders(new_pos)
 
@@ -82,28 +90,28 @@ func calculate_snake_position() -> void:
 		check_for_tail(new_pos)
 		tile_pos.push_front(new_pos)
 
-func check_borders(new_pos):
-	if loop_borders:
-		if new_pos.x >= 776:
-			new_pos.x = 8
-		if new_pos.x < 0:
-			new_pos.x = 760
-		if new_pos.y > 424:
-			new_pos.y = 8
-		if new_pos.y < 0:
-			new_pos.y = 424
+func check_borders(new_pos) -> Vector2:
+	if can_loop_borders:
+		if new_pos.x >= snakelimits_right_bot.x:
+			new_pos.x = snakelimits_left_top.x + OFFSET
+		if new_pos.x < snakelimits_left_top.x:
+			new_pos.x = snakelimits_right_bot.x - OFFSET
+		if new_pos.y > snakelimits_right_bot.y:
+			new_pos.y = snakelimits_left_top.y + OFFSET
+		if new_pos.y < snakelimits_left_top.y:
+			new_pos.y = snakelimits_right_bot.y - OFFSET
 	else:
-		if new_pos.x >= 416:
-			new_pos.x = 408
+		if new_pos.x >= snakelimits_right_bot.x:
+			new_pos.x = snakelimits_right_bot.x
 			die()
-		if new_pos.x < 24:
-			new_pos.x = 24
+		if new_pos.x < snakelimits_left_top.x:
+			new_pos.x = snakelimits_left_top.x
 			die()
-		if new_pos.y > 416:
-			new_pos.y = 416
+		if new_pos.y > snakelimits_right_bot.y:
+			new_pos.y = snakelimits_right_bot.y
 			die()
-		if new_pos.y < 24:
-			new_pos.y = 24
+		if new_pos.y < snakelimits_left_top.y:
+			new_pos.y = snakelimits_left_top.y
 			die()
 	return new_pos
 
@@ -173,8 +181,7 @@ func draw_snake() -> void:
 						tiles[i].rotation_degrees = 90
 				else:
 					tiles[i].rotation_degrees = 90
-					
-				
+			
 	tiles[-1].visible = true
 	
 func check_for_fruit(fruit_position) -> void:
@@ -193,7 +200,7 @@ func is_fruit_under_snake(fruit_position) -> bool:
 	else:
 		return false
 
-func die():
+func die() -> void:
 	alive = false
 	tiles[0].get_node("AnimationPlayer").play("Die")
 	emit_signal("snake_died")
@@ -202,7 +209,7 @@ func check_for_tail(new_pos) -> void:
 	if tile_pos.has(new_pos):
 		die()
 
-func eat_fruit():
+func eat_fruit() -> void:
 	var tile = snake_tile.instance()
 	tile.position = last_pos
 	snake_tiles.add_child(tile)
@@ -211,5 +218,5 @@ func eat_fruit():
 	tiles[0].get_node("AnimationPlayer").play("EatFruit")
 	emit_signal("snake_size_grew")
 
-func eat_special():
+func eat_special() -> void:
 	tiles[0].get_node("AnimationPlayer").play("EatSpecial")
