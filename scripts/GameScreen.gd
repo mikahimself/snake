@@ -1,13 +1,5 @@
 extends Node2D
 
-# Arena Size
-var rows: int = 23
-var cols: int = 23
-
-var pause_state: bool = false
-
-var rng: RandomNumberGenerator
-
 const TILE_SIZE: int = 16
 const START_X: int = 120
 const START_Y: int = 56
@@ -18,28 +10,33 @@ const ORIGIN_PLAYAREA_OUTER: Vector2 = Vector2(16, 16)
 const ORIGIN_PLAYAREA_INNER: Vector2 = Vector2(32, 32)
 const RECTSIZE_PLAYAREA_OUTER: Vector2 = Vector2(400, 400)
 const RECTSIZE_PLAYAREA_INNER: Vector2 = Vector2(368, 368)
+var rows: int = RECTSIZE_PLAYAREA_INNER.y / TILE_SIZE
+var cols: int = RECTSIZE_PLAYAREA_INNER.x / TILE_SIZE
 
 # Movement Limits for Snake
 var snakelimits_left_top: Vector2 = Vector2(ORIGIN_PLAYAREA_INNER.x, ORIGIN_PLAYAREA_INNER.y)
 var snakelimits_right_bot: Vector2 = Vector2(ORIGIN_PLAYAREA_INNER.x + RECTSIZE_PLAYAREA_INNER.x, ORIGIN_PLAYAREA_INNER.y + RECTSIZE_PLAYAREA_INNER.y)
 
+# Gameplay related
 var game_on: bool = true
-var move_time_step: float = 0.5
+var move_time_step: float = 0.25
 var current_move_time: float = 0.0
 var snake_length: int = 0
-var special_spawn_limit = 10
-var special_spawn_divisor = 5
 
+# Special Item Spawning
+const SPECIAL_SPAWN_MIN_LIMIT = 10
+const SPECIAL_SPAWN_DIVISOR = 10
+
+# Scenes and Nodes
 onready var snake_scene: PackedScene = preload("res://scenes/Snake.tscn")
 onready var fruit_scene: PackedScene = preload("res://scenes/Fruit.tscn")
 onready var special_scene: PackedScene = preload("res://scenes/Special.tscn")
-onready var border_scene: PackedScene = preload("res://scenes/BorderTile.tscn")
 onready var special_spawn_timer: Timer = get_node("SpecialSpawnTimer")
 onready var game_over_screen = get_node("GameOverScreen")
-
 var snake: Node2D
 var fruit: Sprite
 var special: Sprite
+var rng: RandomNumberGenerator
 
 func _ready() -> void:
     rng = RandomNumberGenerator.new()
@@ -152,7 +149,7 @@ func on_snake_ate_special() -> void:
 func on_snake_grew() -> void:
     snake_length += 1
     print("Snake len: ", snake_length)
-    if snake_length >= special_spawn_limit and snake_length % special_spawn_divisor == 0:
+    if snake_length >= SPECIAL_SPAWN_MIN_LIMIT and snake_length % SPECIAL_SPAWN_DIVISOR == 0:
         special_spawn_timer.start()
 
 func _on_SpecialSpawnTimer_timeout() -> void:
