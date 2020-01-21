@@ -13,6 +13,17 @@ const RECTSIZE_PLAYAREA_INNER: Vector2 = Vector2(368, 368)
 var rows: int = RECTSIZE_PLAYAREA_INNER.y / TILE_SIZE
 var cols: int = RECTSIZE_PLAYAREA_INNER.x / TILE_SIZE
 
+# Sidepanel Area
+const ORIGIN_SIDEPANEL_OUTER: Vector2 = Vector2(448, 16)
+const ORIGIN_SIDEPANEL_INNER: Vector2 = Vector2(464, 32)
+const RECTSIZE_SIDEPANEL_OUTER: Vector2 = Vector2(304, 400)
+const RECTSIZE_SIDEPANEL_INNER: Vector2 = Vector2(272, 368)
+
+# Colors
+const COLOR_BLUE: Color = Color("#01c4e7")
+const COLOR_BLACK: Color = Color("#000000")
+const COLOR_RED: Color = Color("#c501e2")
+
 # Movement Limits for Snake
 var snakelimits_left_top: Vector2 = Vector2(ORIGIN_PLAYAREA_INNER.x, ORIGIN_PLAYAREA_INNER.y)
 var snakelimits_right_bot: Vector2 = Vector2(ORIGIN_PLAYAREA_INNER.x + RECTSIZE_PLAYAREA_INNER.x, ORIGIN_PLAYAREA_INNER.y + RECTSIZE_PLAYAREA_INNER.y)
@@ -21,11 +32,7 @@ var snakelimits_right_bot: Vector2 = Vector2(ORIGIN_PLAYAREA_INNER.x + RECTSIZE_
 var game_on: bool = true
 var move_time_step: float = 0.25
 var current_move_time: float = 0.0
-var snake_length: int = 0
 
-# Special Item Spawning
-const SPECIAL_SPAWN_MIN_LIMIT = 10
-const SPECIAL_SPAWN_DIVISOR = 10
 
 # Scenes and Nodes
 onready var snake_scene: PackedScene = preload("res://scenes/Snake.tscn")
@@ -33,6 +40,8 @@ onready var fruit_scene: PackedScene = preload("res://scenes/Fruit.tscn")
 onready var special_scene: PackedScene = preload("res://scenes/Special.tscn")
 onready var special_spawn_timer: Timer = get_node("SpecialSpawnTimer")
 onready var game_over_screen = get_node("GameOverScreen")
+onready var score_handler = get_node("ScoreHandler")
+
 var snake: Node2D
 var fruit: Sprite
 var special: Sprite
@@ -41,16 +50,21 @@ var rng: RandomNumberGenerator
 func _ready() -> void:
     rng = RandomNumberGenerator.new()
     rng.randomize()
+    
     spawn_snake()
     spawn_fruit()
+    score_handler.connect("spawn_special_limit_reached", self, "on_spawn_special_limit_reached")
+    
 
 func spawn_snake() -> void:
     snake = snake_scene.instance()
     snake.start_position = Vector2(START_X, START_Y)
     snake.set_limits(snakelimits_left_top, snakelimits_right_bot)
     snake.connect("snake_died", self, "on_snake_dead")
-    snake.connect("snake_size_grew", self, "on_snake_grew")
+    snake.connect("snake_size_grew", score_handler, "on_snake_grew")
+    snake.connect("ate_fruit", score_handler, "on_snake_ate_fruit")
     snake.connect("ate_fruit", self, "on_snake_ate_fruit")
+    snake.connect("ate_special", score_handler, "on_snake_ate_special")
     snake.connect("ate_special", self, "on_snake_ate_special")
     add_child(snake)
 
@@ -66,16 +80,17 @@ func spawn_special() -> void:
     move_special()
     
 func _draw() -> void:
-    draw_rect(Rect2(ORIGIN_PLAYAREA_OUTER, RECTSIZE_PLAYAREA_OUTER), Color("#01c4e7"))
-    draw_rect(Rect2(ORIGIN_PLAYAREA_INNER, RECTSIZE_PLAYAREA_INNER), Color("#000000"))
+    draw_rect(Rect2(ORIGIN_PLAYAREA_OUTER, RECTSIZE_PLAYAREA_OUTER), COLOR_BLUE)
+    draw_rect(Rect2(ORIGIN_PLAYAREA_INNER, RECTSIZE_PLAYAREA_INNER), COLOR_BLACK)
    
-    draw_rect(Rect2(Vector2(448,16), Vector2(304,400)), Color("#01c4e7"))
-    draw_rect(Rect2(Vector2(464,32), Vector2(272,368)), Color("#000000"))
+    draw_rect(Rect2(ORIGIN_SIDEPANEL_OUTER, RECTSIZE_SIDEPANEL_OUTER), COLOR_BLUE)
+    draw_rect(Rect2(ORIGIN_SIDEPANEL_INNER, RECTSIZE_SIDEPANEL_INNER), COLOR_BLACK)
    
     for i in range(2,26):
-        draw_line(Vector2(464, i * TILE_SIZE), Vector2(736, i * TILE_SIZE), Color("#c501e2"), 1)
+        if i != 4 and i != 7:
+            draw_line(Vector2(464, i * TILE_SIZE), Vector2(736, i * TILE_SIZE), COLOR_RED, 1)
     for i in range(0, 18):
-        draw_line(Vector2(i * TILE_SIZE + 464, 32), Vector2(i * TILE_SIZE + 464, 400), Color("#c501e2"), 1)
+        draw_line(Vector2(i * TILE_SIZE + 464, 32), Vector2(i * TILE_SIZE + 464, 400), COLOR_RED, 1)
 
 func move_fruit() -> void:
     fruit.scale = Vector2.ZERO
@@ -124,7 +139,7 @@ func handle_input() -> void:
         reset_game()
 
 func reset_game() -> void:
-    snake_length = 0
+    score_handler.reset_score()
     snake.queue_free()
     fruit.queue_free()
     spawn_snake()
@@ -139,21 +154,17 @@ func on_snake_dead() -> void:
     game_on = false
     $GameOverTimer.start()
 
-func on_snake_ate_fruit() -> void:
-    move_fruit()
-
-func on_snake_ate_special() -> void:
-    special.set_disabled(true)
-    print("ate special")
-
-func on_snake_grew() -> void:
-    snake_length += 1
-    print("Snake len: ", snake_length)
-    if snake_length >= SPECIAL_SPAWN_MIN_LIMIT and snake_length % SPECIAL_SPAWN_DIVISOR == 0:
-        special_spawn_timer.start()
-
 func _on_SpecialSpawnTimer_timeout() -> void:
     spawn_special()
 
 func _on_GameOverTimer_timeout() -> void:
     game_over_screen.visible = true
+
+func on_spawn_special_limit_reached() -> void:
+    special_spawn_timer.start()
+
+func on_snake_ate_fruit() -> void:
+    move_fruit()
+
+func on_snake_ate_special() -> void:
+    special.set_disabled(true)

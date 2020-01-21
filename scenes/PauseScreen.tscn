@@ -1,8 +1,9 @@
 [gd_scene load_steps=4 format=2]
 
-[ext_resource path="res://scenes/PauseScreen.gd" type="Script" id=1]
+[ext_resource path="res://scripts/PauseScreen.gd" type="Script" id=1]
 [ext_resource path="res://fonts/pause_title_font.tres" type="DynamicFont" id=2]
 [ext_resource path="res://fonts/pause_subtitle_font.tres" type="DynamicFont" id=3]
+
 
 [node name="PauseScreen" type="Node2D"]
 pause_mode = 2
