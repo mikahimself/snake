@@ -20,6 +20,10 @@ run/main_scene="res://scenes/GameScreen.tscn"
 boot_splash/bg_color=Color( 0, 0, 0, 1 )
 config/icon="res://icon.png"
 
+[autoload]
+
+Settings="*res://scripts/Settings.gd"
+
 [display]
 
 window/size/width=768

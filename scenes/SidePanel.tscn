@@ -1,0 +1,119 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://scripts/ScorePanel.gd" type="Script" id=1]
+[ext_resource path="res://fonts/pause_subtitle_font.tres" type="DynamicFont" id=2]
+[ext_resource path="res://themes/snake_theme.tres" type="Theme" id=3]
+
+[sub_resource type="StyleBoxFlat" id=1]
+content_margin_left = 10.0
+content_margin_right = 10.0
+bg_color = Color( 0, 0, 0, 1 )
+
+[sub_resource type="StyleBoxFlat" id=2]
+content_margin_left = 10.0
+content_margin_right = 10.0
+bg_color = Color( 0, 0, 0, 1 )
+
+[sub_resource type="StyleBoxFlat" id=3]
+bg_color = Color( 0, 0, 0, 1 )
+
+[sub_resource type="StyleBoxFlat" id=4]
+bg_color = Color( 0, 0, 0, 1 )
+
+[node name="SidePanel" type="Control"]
+margin_right = 190.0
+margin_bottom = 368.0
+script = ExtResource( 1 )
+
+[node name="ScoreVBox" type="VBoxContainer" parent="."]
+anchor_right = 1.0
+rect_min_size = Vector2( 0, 100 )
+
+[node name="ScoreContainer" type="PanelContainer" parent="ScoreVBox"]
+margin_right = 190.0
+margin_bottom = 31.0
+rect_min_size = Vector2( 0, 31 )
+custom_styles/panel = SubResource( 1 )
+
+[node name="ScoreTitle" type="Label" parent="ScoreVBox/ScoreContainer"]
+margin_left = 10.0
+margin_right = 180.0
+margin_bottom = 30.0
+custom_fonts/font = ExtResource( 2 )
+custom_colors/font_color = Color( 0.776471, 0.901961, 0.00784314, 1 )
+text = "SCORE:"
+
+[node name="ScoreNumber" type="Label" parent="ScoreVBox/ScoreContainer"]
+margin_left = 10.0
+margin_right = 180.0
+margin_bottom = 30.0
+custom_fonts/font = ExtResource( 2 )
+custom_colors/font_color = Color( 0.776471, 0.901961, 0.00784314, 1 )
+text = "000000"
+align = 2
+
+[node name="LengthVBox" type="VBoxContainer" parent="."]
+margin_top = 48.0
+margin_right = 190.0
+margin_bottom = 79.0
+
+[node name="LengthContainer" type="PanelContainer" parent="LengthVBox"]
+margin_right = 190.0
+margin_bottom = 31.0
+rect_min_size = Vector2( 0, 31 )
+custom_styles/panel = SubResource( 2 )
+
+[node name="LengthTitle" type="Label" parent="LengthVBox/LengthContainer"]
+margin_left = 10.0
+margin_right = 180.0
+margin_bottom = 30.0
+custom_fonts/font = ExtResource( 2 )
+custom_colors/font_color = Color( 0.776471, 0.901961, 0.00784314, 1 )
+text = "LENGTH:"
+
+[node name="LengthNumber" type="Label" parent="LengthVBox/LengthContainer"]
+margin_left = 10.0
+margin_right = 180.0
+margin_bottom = 30.0
+custom_fonts/font = ExtResource( 2 )
+custom_colors/font_color = Color( 0.776471, 0.901961, 0.00784314, 1 )
+text = "000"
+align = 2
+
+[node name="ControlVBox" type="VBoxContainer" parent="."]
+visible = false
+margin_top = 240.0
+margin_right = 190.0
+margin_bottom = 440.0
+custom_constants/separation = 17
+
+[node name="ModeButton" type="Button" parent="ControlVBox"]
+margin_right = 190.0
+margin_bottom = 31.0
+rect_min_size = Vector2( 0, 31 )
+focus_neighbour_left = NodePath("../StartButton")
+focus_neighbour_top = NodePath("../StartButton")
+focus_neighbour_right = NodePath("../StartButton")
+focus_neighbour_bottom = NodePath("../StartButton")
+focus_next = NodePath("../StartButton")
+focus_previous = NodePath("../StartButton")
+theme = ExtResource( 3 )
+custom_styles/hover = SubResource( 3 )
+custom_styles/normal = SubResource( 4 )
+text = "MODE: EASY"
+
+[node name="StartButton" type="Button" parent="ControlVBox"]
+margin_top = 48.0
+margin_right = 190.0
+margin_bottom = 79.0
+rect_min_size = Vector2( 0, 31 )
+focus_neighbour_left = NodePath("../ModeButton")
+focus_neighbour_top = NodePath("../ModeButton")
+focus_neighbour_right = NodePath("../ModeButton")
+focus_neighbour_bottom = NodePath("../ModeButton")
+focus_next = NodePath("../ModeButton")
+focus_previous = NodePath("../ModeButton")
+theme = ExtResource( 3 )
+custom_styles/hover = SubResource( 3 )
+custom_styles/normal = SubResource( 4 )
+text = "START"

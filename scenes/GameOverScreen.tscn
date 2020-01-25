@@ -35,6 +35,7 @@ text = "Game Over"
 align = 1
 
 [node name="Subtitle" type="Label" parent="ColorRect/VBoxContainer"]
+visible = false
 margin_top = 62.0
 margin_right = 276.0
 margin_bottom = 92.0

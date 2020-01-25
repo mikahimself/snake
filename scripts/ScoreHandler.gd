@@ -1,6 +1,6 @@
 extends Node2D
 
-onready var score_panel = get_parent().get_node("ScorePanel")
+onready var side_panel = get_parent().get_node("SidePanel")
 
 var score: int = 0
 var length: int = 0
@@ -13,15 +13,15 @@ signal spawn_special_limit_reached
 
 func on_snake_ate_fruit() -> void:
 	score += SCORE_FRUIT
-	score_panel.set_score(score)
+	side_panel.set_score(score)
 
 func on_snake_ate_special() -> void:
 	score += SCORE_SPECIAL
-	score_panel.set_score(score)
+	side_panel.set_score(score)
 
 func on_snake_grew() -> void:
 	length += 1
-	score_panel.set_length(length)
+	side_panel.set_length(length)
 
 	if length >= SPECIAL_SPAWN_MIN_LIMIT and length % SPECIAL_SPAWN_DIVISOR == 0:
 		emit_signal("spawn_special_limit_reached")
@@ -29,3 +29,4 @@ func on_snake_grew() -> void:
 func reset_score() -> void:
 	score = 0
 	length = 0
+	side_panel.set_score(score)

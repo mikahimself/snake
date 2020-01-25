@@ -29,7 +29,7 @@ var snakelimits_left_top: Vector2 = Vector2(ORIGIN_PLAYAREA_INNER.x, ORIGIN_PLAY
 var snakelimits_right_bot: Vector2 = Vector2(ORIGIN_PLAYAREA_INNER.x + RECTSIZE_PLAYAREA_INNER.x, ORIGIN_PLAYAREA_INNER.y + RECTSIZE_PLAYAREA_INNER.y)
 
 # Gameplay related
-var game_on: bool = true
+var game_on: bool = false
 var move_time_step: float = 0.25
 var current_move_time: float = 0.0
 
@@ -41,6 +41,7 @@ onready var special_scene: PackedScene = preload("res://scenes/Special.tscn")
 onready var special_spawn_timer: Timer = get_node("SpecialSpawnTimer")
 onready var game_over_screen = get_node("GameOverScreen")
 onready var score_handler = get_node("ScoreHandler")
+onready var menu_handler = get_node("MenuHandler")
 
 var snake: Node2D
 var fruit: Sprite
@@ -50,11 +51,26 @@ var rng: RandomNumberGenerator
 func _ready() -> void:
     rng = RandomNumberGenerator.new()
     rng.randomize()
-    
+    score_handler.connect("spawn_special_limit_reached", self, "on_spawn_special_limit_reached")
+    menu_handler.connect("game_start_clicked", self, "start_game")
+    menu_handler.set_menu_active(true)
+
+func start_game() -> void:
+    game_on = true
+    update()
+    score_handler.reset_score()
+    set_step_time()
     spawn_snake()
     spawn_fruit()
-    score_handler.connect("spawn_special_limit_reached", self, "on_spawn_special_limit_reached")
-    
+    get_tree().paused = false
+    game_on = true
+    game_over_screen.visible = false
+    menu_handler.set_menu_active(false)
+    if special:
+        special.set_disabled(true)
+
+func set_step_time() -> void:
+    move_time_step = Settings.get_step_time()
 
 func spawn_snake() -> void:
     snake = snake_scene.instance()
@@ -87,10 +103,14 @@ func _draw() -> void:
     draw_rect(Rect2(ORIGIN_SIDEPANEL_INNER, RECTSIZE_SIDEPANEL_INNER), COLOR_BLACK)
    
     for i in range(2,26):
-        if i != 4 and i != 7:
-            draw_line(Vector2(464, i * TILE_SIZE), Vector2(736, i * TILE_SIZE), COLOR_RED, 1)
+        if game_on:
+            if i != 4 and i != 7:
+                draw_line(Vector2(ORIGIN_SIDEPANEL_INNER.x, i * TILE_SIZE), Vector2(ORIGIN_SIDEPANEL_INNER.x + RECTSIZE_SIDEPANEL_INNER.x, i * TILE_SIZE), COLOR_RED, 1)
+        else:
+            if i != 4 and i != 7 and i != 19 and i != 22:
+                draw_line(Vector2(ORIGIN_SIDEPANEL_INNER.x, i * TILE_SIZE), Vector2(ORIGIN_SIDEPANEL_INNER.x + RECTSIZE_SIDEPANEL_INNER.x, i * TILE_SIZE), COLOR_RED, 1)
     for i in range(0, 18):
-        draw_line(Vector2(i * TILE_SIZE + 464, 32), Vector2(i * TILE_SIZE + 464, 400), COLOR_RED, 1)
+        draw_line(Vector2(i * TILE_SIZE + ORIGIN_SIDEPANEL_INNER.x, ORIGIN_SIDEPANEL_INNER.y), Vector2(i * TILE_SIZE + ORIGIN_SIDEPANEL_INNER.x, 400), COLOR_RED, 1)
 
 func move_fruit() -> void:
     fruit.scale = Vector2.ZERO
@@ -119,7 +139,6 @@ func move_special() -> void:
         special.position = new_pos
 
 func _process(delta) -> void:
-    handle_input()
     if game_on:
         snake.check_input()
         current_move_time += delta
@@ -132,24 +151,6 @@ func _process(delta) -> void:
                 snake.check_for_special(special.position)
             current_move_time = 0
 
-func handle_input() -> void:
-    if Input.is_action_pressed("reset_game"):
-        reset_game()
-    if Input.is_action_pressed("ui_select") and not game_on:
-        reset_game()
-
-func reset_game() -> void:
-    score_handler.reset_score()
-    snake.queue_free()
-    fruit.queue_free()
-    spawn_snake()
-    spawn_fruit()
-    get_tree().paused = false
-    game_on = true
-    game_over_screen.visible = false
-    if special:
-        special.set_disabled(true)
-
 func on_snake_dead() -> void:
     game_on = false
     $GameOverTimer.start()
@@ -159,6 +160,10 @@ func _on_SpecialSpawnTimer_timeout() -> void:
 
 func _on_GameOverTimer_timeout() -> void:
     game_over_screen.visible = true
+    menu_handler.set_menu_active(true)
+    update()
+    snake.queue_free()
+    fruit.queue_free()
 
 func on_spawn_special_limit_reached() -> void:
     special_spawn_timer.start()
