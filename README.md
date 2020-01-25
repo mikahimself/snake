@@ -11,9 +11,11 @@ Sneɪk is built on the Godot Engine and attempts to do everything a good snake g
 - The snake grows after eating a nondescript blob
 - The snake dies if it chomps on its own tail
 - Groovy 1980s retro looks
+- Main menu and a pause menu
+- Scorekeeping
+- Three difficulty levels
 
 ## Possible future features
-- Scorekeeping and high score table
+- High score table
 - Speedups after eating X blobs
-- Main menu and a pause menu
 - Highly competitive two player mode
