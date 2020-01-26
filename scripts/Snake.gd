@@ -24,6 +24,11 @@ onready var snake_body = preload("res://art/snake-tile.png")
 onready var snake_head = preload("res://art/snake-head-tile.png")
 onready var snake_tiles = $SnakeTiles
 
+onready var audio_ate_fruit = get_node("AudioAteFruit")
+onready var audio_ate_special = get_node("AudioAteSpecial")
+onready var audio_snake_died = get_node("AudioSnakeDied")
+onready var audio_move = get_node("AudioMove")
+
 signal snake_died()
 signal ate_fruit()
 signal ate_special()
@@ -181,15 +186,18 @@ func draw_snake() -> void:
 					tiles[i].rotation_degrees = 90
 			
 	tiles[-1].visible = true
+	audio_move.play()
 	
 func check_for_fruit(fruit_position) -> void:
 	if fruit_position == tile_pos[0]:
-		eat_fruit()
 		emit_signal("ate_fruit")
+		audio_ate_fruit.play()
+		eat_fruit()
 
 func check_for_special(special_position) -> void:
 	if special_position == tile_pos[0]:
 		emit_signal("ate_special")
+		audio_ate_special.play()
 		eat_special()
 
 func is_fruit_under_snake(fruit_position) -> bool:
@@ -202,6 +210,7 @@ func die() -> void:
 	alive = false
 	tiles[0].get_node("AnimationPlayer").play("Die")
 	emit_signal("snake_died")
+	audio_snake_died.play()
 
 func check_for_tail(new_pos) -> void:
 	if tile_pos.has(new_pos):
