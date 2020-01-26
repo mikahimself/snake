@@ -2,7 +2,7 @@ extends Node2D
 
 enum directions { UP, DOWN, LEFT, RIGHT }
 var direction
-var previous_direction
+var direction_queue: Array = []
 
 const TILE_SIZE: int = 16
 const OFFSET: int = 8
@@ -56,29 +56,28 @@ func _ready() -> void:
 		body_tile.visible = true
 
 	direction = directions.RIGHT
+	direction_queue.append(direction)
 
 func set_limits(snakelimits_lt, snakelimits_rb) -> void:
 	snakelimits_left_top = snakelimits_lt
 	snakelimits_right_bot = snakelimits_rb
 
 func check_input() -> void:
-	previous_direction = direction
-
-	if Input.is_action_pressed("ui_left") and direction != directions.RIGHT:
+	if Input.is_action_pressed("ui_left") and direction_queue[-1] != directions.RIGHT:
 		direction = directions.LEFT
-	if Input.is_action_pressed("ui_right") and direction != directions.LEFT:
+	if Input.is_action_pressed("ui_right") and direction_queue[-1] != directions.LEFT:
 		direction = directions.RIGHT
-	if Input.is_action_pressed("ui_up") and direction != directions.DOWN:
+	if Input.is_action_pressed("ui_up") and direction_queue[-1] != directions.DOWN:
 		direction = directions.UP
-	if Input.is_action_pressed("ui_down") and direction != directions.UP:
+	if Input.is_action_pressed("ui_down") and direction_queue[-1] != directions.UP:
 		direction = directions.DOWN
-	if Input.is_action_pressed("grow_snake"):
-		eat_fruit()
+	if direction_queue[-1] != direction:
+		direction_queue.append(direction)
 
 func calculate_snake_position() -> void:
 	var new_pos = Vector2.ZERO
 
-	match direction:
+	match direction_queue[0]:
 		directions.LEFT:
 			new_pos = Vector2(tiles[0].position.x - TILE_SIZE, tiles[0].position.y)
 		directions.RIGHT:
@@ -88,6 +87,8 @@ func calculate_snake_position() -> void:
 		directions.DOWN:
 			new_pos = Vector2(tiles[0].position.x, tiles[0].position.y + TILE_SIZE)
 
+	if direction_queue.size() > 1:
+		direction_queue.remove(0)
 	new_pos = check_borders(new_pos)
 	tile_pos.pop_back()
 	check_for_tail(new_pos)

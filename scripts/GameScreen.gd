@@ -140,8 +140,8 @@ func move_special() -> void:
 
 func _process(delta) -> void:
     if game_on:
-        snake.check_input()
         current_move_time += delta
+        snake.check_input()
 
         if current_move_time >= move_time_step:
             snake.calculate_snake_position()
