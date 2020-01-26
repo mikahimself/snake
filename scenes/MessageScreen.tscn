@@ -1,13 +1,11 @@
 [gd_scene load_steps=4 format=2]
 
-[ext_resource path="res://scripts/PauseScreen.gd" type="Script" id=1]
+[ext_resource path="res://scripts/MessageScreen.gd" type="Script" id=1]
 [ext_resource path="res://fonts/pause_title_font.tres" type="DynamicFont" id=2]
 [ext_resource path="res://fonts/pause_subtitle_font.tres" type="DynamicFont" id=3]
 
-
-[node name="PauseScreen" type="Node2D"]
+[node name="MessageScreen" type="Node2D"]
 pause_mode = 2
-visible = false
 z_index = 100
 script = ExtResource( 1 )
 
@@ -18,7 +16,7 @@ margin_right = 400.0
 margin_bottom = 400.0
 color = Color( 0, 0, 0, 1 )
 
-[node name="VBoxContainer" type="VBoxContainer" parent="ColorRect"]
+[node name="MessageContainer" type="VBoxContainer" parent="ColorRect"]
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -29,7 +27,7 @@ margin_right = 138.0
 margin_bottom = 8.0
 alignment = 1
 
-[node name="Title" type="Label" parent="ColorRect/VBoxContainer"]
+[node name="Title" type="Label" parent="ColorRect/MessageContainer"]
 margin_right = 276.0
 margin_bottom = 58.0
 custom_fonts/font = ExtResource( 2 )
@@ -37,7 +35,7 @@ custom_colors/font_color = Color( 0.776471, 0.901961, 0.00784314, 1 )
 text = "PAUSED"
 align = 1
 
-[node name="Subtitle" type="Label" parent="ColorRect/VBoxContainer"]
+[node name="Subtitle" type="Label" parent="ColorRect/MessageContainer"]
 margin_top = 62.0
 margin_right = 276.0
 margin_bottom = 92.0

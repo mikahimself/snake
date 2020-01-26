@@ -1,11 +1,10 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://scripts/GameScreen.gd" type="Script" id=1]
-[ext_resource path="res://scenes/PauseScreen.tscn" type="PackedScene" id=2]
-[ext_resource path="res://scenes/GameOverScreen.tscn" type="PackedScene" id=3]
-[ext_resource path="res://scenes/SidePanel.tscn" type="PackedScene" id=4]
-[ext_resource path="res://scenes/ScoreHandler.tscn" type="PackedScene" id=5]
-[ext_resource path="res://scenes/MenuHandler.tscn" type="PackedScene" id=6]
+[ext_resource path="res://scenes/SidePanel.tscn" type="PackedScene" id=2]
+[ext_resource path="res://scenes/ScoreHandler.tscn" type="PackedScene" id=3]
+[ext_resource path="res://scenes/MenuHandler.tscn" type="PackedScene" id=4]
+[ext_resource path="res://scenes/MessageScreen.tscn" type="PackedScene" id=5]
 
 [sub_resource type="Environment" id=1]
 background_mode = 4
@@ -27,27 +26,25 @@ one_shot = true
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource( 1 )
 
-[node name="PauseScreen" parent="." instance=ExtResource( 2 )]
-
-[node name="GameOverScreen" parent="." instance=ExtResource( 3 )]
-
 [node name="GameOverTimer" type="Timer" parent="."]
 wait_time = 2.0
 one_shot = true
 
-[node name="SidePanel" parent="." instance=ExtResource( 4 )]
+[node name="SidePanel" parent="." instance=ExtResource( 2 )]
 margin_left = 500.0
 margin_top = 49.0
 margin_right = 690.0
 margin_bottom = 417.0
 
-[node name="ScoreHandler" parent="." instance=ExtResource( 5 )]
+[node name="ScoreHandler" parent="." instance=ExtResource( 3 )]
 
 [node name="StartTimer" type="Timer" parent="."]
 wait_time = 0.5
 one_shot = true
 
-[node name="MenuHandler" parent="." instance=ExtResource( 6 )]
+[node name="MenuHandler" parent="." instance=ExtResource( 4 )]
 visible = false
+
+[node name="MessageScreen" parent="." instance=ExtResource( 5 )]
 [connection signal="timeout" from="SpecialSpawnTimer" to="." method="_on_SpecialSpawnTimer_timeout"]
 [connection signal="timeout" from="GameOverTimer" to="." method="_on_GameOverTimer_timeout"]

@@ -39,7 +39,7 @@ onready var snake_scene: PackedScene = preload("res://scenes/Snake.tscn")
 onready var fruit_scene: PackedScene = preload("res://scenes/Fruit.tscn")
 onready var special_scene: PackedScene = preload("res://scenes/Special.tscn")
 onready var special_spawn_timer: Timer = get_node("SpecialSpawnTimer")
-onready var game_over_screen = get_node("GameOverScreen")
+onready var message_screen = get_node("MessageScreen")
 onready var score_handler = get_node("ScoreHandler")
 onready var menu_handler = get_node("MenuHandler")
 
@@ -64,7 +64,7 @@ func start_game() -> void:
     spawn_fruit()
     get_tree().paused = false
     game_on = true
-    game_over_screen.visible = false
+    message_screen.update_screen_state(message_screen.SCREEN_STATE.GAME)
     menu_handler.set_menu_active(false)
     if special:
         special.set_disabled(true)
@@ -159,7 +159,7 @@ func _on_SpecialSpawnTimer_timeout() -> void:
     spawn_special()
 
 func _on_GameOverTimer_timeout() -> void:
-    game_over_screen.visible = true
+    message_screen.update_screen_state(message_screen.SCREEN_STATE.GAMEOVER)
     menu_handler.set_menu_active(true)
     update()
     snake.queue_free()

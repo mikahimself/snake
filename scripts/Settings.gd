@@ -3,6 +3,7 @@ extends Node
 var game_modes: Dictionary = {}
 var game_mode: int = 0
 var step_times: Array = [0.25, 0.15, 0.10]
+var points_per_mode: Array = []
 
 func _ready() -> void:
 	setup_game_modes()
