@@ -4,7 +4,7 @@ Sneɪk is yet another snake style game written mainly because I realised I had n
 
 Sneɪk is built on the Godot Engine and attempts to do everything a good snake game is supposed to do.
 
-<img src="https://github.com/mikahimself/mikahimself.github.io/blob/master/screenshots/snake-game-screen.png"/>
+<img src="https://github.com/mikahimself/mikahimself.github.io/blob/master/screenshots/snake-game-screencap.gif"/>
 
 ## Current features
 - The snake can move around the screen and eat nondescript blobs
