@@ -33,7 +33,6 @@ var game_on: bool = false
 var move_time_step: float = 0.25
 var current_move_time: float = 0.0
 
-
 # Scenes and Nodes
 onready var snake_scene: PackedScene = preload("res://scenes/Snake.tscn")
 onready var fruit_scene: PackedScene = preload("res://scenes/Fruit.tscn")
@@ -161,9 +160,9 @@ func _on_SpecialSpawnTimer_timeout() -> void:
 func _on_GameOverTimer_timeout() -> void:
     message_screen.update_screen_state(message_screen.SCREEN_STATE.GAMEOVER)
     menu_handler.set_menu_active(true)
-    update()
     snake.queue_free()
     fruit.queue_free()
+    update()
 
 func on_spawn_special_limit_reached() -> void:
     special_spawn_timer.start()

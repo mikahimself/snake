@@ -11,6 +11,7 @@ var tile_pos: Array = []
 var last_pos: Vector2 = Vector2.ZERO
 var start_position: Vector2
 var can_loop_borders: bool = false
+var penultimate = 0
 
 # Play Area limits
 var snakelimits_left_top: Vector2
@@ -123,71 +124,77 @@ func draw_snake() -> void:
 	tiles[0].position = tile_pos[0]
 	for i in range(1, tiles.size()):
 		tiles[i].position = tile_pos[i]
-		if i > 0:
-			tiles[i].set_texture(snake_body)
-			tiles[i].flip_v = false
-			tiles[i].flip_h = false
-			tiles[i].rotation_degrees = 0
-
-			if tile_pos[i - 1].x < tile_pos[i].x:
-				var next_tile = i + 1
-				if next_tile < tile_pos.size():
-					if tile_pos[i + 1].y < tile_pos[i].y:
-						tiles[i].set_texture(snake_corner)
-						tiles[i].rotation_degrees = 270
-					elif tile_pos[i + 1].y > tile_pos[i].y:
-						tiles[i].set_texture(snake_corner_alt)
-						tiles[i].rotation_degrees = 180
-					else:
-						tiles[i].flip_v = true
-				else:
-					tiles[i].flip_v = true
+		if i > 0 and i < tiles.size() - 1:
+			set_tile_image(i, get_surrounding_tiles(i))
+		elif i == tiles.size() - 1:
+			set_tile_image(i, penultimate)
 			
-			elif tile_pos[i - 1].x > tile_pos[i].x:
-				tiles[i].rotation_degrees = 0
-				var next_tile = i + 1
-				if next_tile < tile_pos.size():
-					if tile_pos[i + 1].y < tile_pos[i].y:
-						tiles[i].set_texture(snake_corner_alt)
-					elif tile_pos[i + 1].y > tile_pos[i].y:
-						tiles[i].set_texture(snake_corner)
-						tiles[i].rotation_degrees = 90
-			# Going up
-			elif tile_pos[i - 1].y < tile_pos[i].y:
-				var next_tile = i + 1
-				if next_tile < tile_pos.size():
-					if tile_pos[i + 1].x < tile_pos[i].x:
-						tiles[i].set_texture(snake_corner_alt)
-						tiles[i].rotation_degrees = 270
-					
-					elif tile_pos[i + 1].x > tile_pos[i].x:
-						tiles[i].set_texture(snake_corner)
-						tiles[i].rotation_degrees = 0
-					else:
-						tiles[i].rotation_degrees = 90
-						tiles[i].flip_v = true
-				else:
-					tiles[i].rotation_degrees = 90
-					tiles[i].flip_v = true
-			
-			# Going Down					
-			elif tile_pos[i - 1].y > tile_pos[i].y:
-				var next_tile = i + 1
-				if next_tile < tile_pos.size():
-					if tile_pos[i + 1].x > tile_pos[i].x:
-						tiles[i].set_texture(snake_corner_alt)
-						tiles[i].rotation_degrees = 90
-
-					elif tile_pos[i + 1].x < tile_pos[i].x:
-						tiles[i].set_texture(snake_corner)
-						tiles[i].rotation_degrees = 180
-					else:
-						tiles[i].rotation_degrees = 90
-				else:
-					tiles[i].rotation_degrees = 90
-			
+	penultimate = get_surrounding_tiles(tiles.size() - 2)
 	tiles[-1].visible = true
 	audio_move.play()
+
+func get_surrounding_tiles(tile_position) -> int:
+	var tile_score = 0
+	if tile_pos[tile_position - 1].y < tile_pos[tile_position].y:
+		tile_score += 1
+	elif tile_pos[tile_position - 1].x > tile_pos[tile_position].x:
+		tile_score += 2
+	elif tile_pos[tile_position - 1].y > tile_pos[tile_position].y:
+		tile_score += 4
+	elif tile_pos[tile_position - 1].x < tile_pos[tile_position].x:
+		tile_score += 8
+
+	if tile_pos[tile_position + 1].y < tile_pos[tile_position].y:
+		tile_score += 16
+	elif tile_pos[tile_position + 1].x > tile_pos[tile_position].x:
+		tile_score += 32
+	elif tile_pos[tile_position + 1].y > tile_pos[tile_position].y:
+		tile_score += 64
+	elif tile_pos[tile_position + 1].x < tile_pos[tile_position].x:
+		tile_score += 128
+
+	return tile_score
+
+func set_tile_image(pos, tile_score) -> void:
+	tiles[pos].flip_v = false
+	tiles[pos].flip_h = false
+	tiles[pos].rotation_degrees = 0
+
+	match tile_score:
+		130: # Right
+			tiles[pos].set_texture(snake_body)
+		20: #  Down
+			tiles[pos].set_texture(snake_body)
+			tiles[pos].rotation_degrees = 90
+		40: # Left
+			tiles[pos].set_texture(snake_body)
+			tiles[pos].flip_v = true
+		65: # Up
+			tiles[pos].set_texture(snake_body)
+			tiles[pos].rotation_degrees = 90
+			tiles[pos].flip_v = true
+		132: # Corner right-to-down
+			tiles[pos].set_texture(snake_corner)
+			tiles[pos].rotation_degrees = 180
+		24: # Corner down-to-left
+			tiles[pos].set_texture(snake_corner)
+			tiles[pos].rotation_degrees = 270
+		33: # Corner left-to-up
+			tiles[pos].set_texture(snake_corner)
+		66: # Corner up-to-right
+			tiles[pos].set_texture(snake_corner)
+			tiles[pos].rotation_degrees = 90
+		72: # Corner up-to-left
+			tiles[pos].set_texture(snake_corner_alt)
+			tiles[pos].rotation_degrees = 180
+		36: # Corner left-to-down
+			tiles[pos].set_texture(snake_corner_alt)
+			tiles[pos].rotation_degrees = 90
+		18: # Corner down-to-right
+			tiles[pos].set_texture(snake_corner_alt)
+		129: # Corner right-to-up
+			tiles[pos].set_texture(snake_corner_alt)
+			tiles[pos].rotation_degrees = 270
 	
 func check_for_fruit(fruit_position) -> void:
 	if fruit_position == tile_pos[0]:
