@@ -30,3 +30,10 @@ func reset_score() -> void:
 	score = 0
 	length = 0
 	side_panel.set_score(score)
+
+func load_high_score() -> void:
+	var high = FileHandler.load_high_score()
+	side_panel.set_high_score(high)
+
+func save_high_score() -> void:
+	FileHandler.save_high_score(score)

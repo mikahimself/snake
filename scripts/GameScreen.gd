@@ -53,6 +53,7 @@ func _ready() -> void:
     score_handler.connect("spawn_special_limit_reached", self, "on_spawn_special_limit_reached")
     menu_handler.connect("game_start_clicked", self, "start_game")
     menu_handler.set_menu_active(true)
+    score_handler.load_high_score()
 
 func start_game() -> void:
     game_on = true
@@ -152,6 +153,7 @@ func _process(delta) -> void:
 
 func on_snake_dead() -> void:
     game_on = false
+    score_handler.save_high_score()
     $GameOverTimer.start()
 
 func _on_SpecialSpawnTimer_timeout() -> void:
@@ -160,6 +162,7 @@ func _on_SpecialSpawnTimer_timeout() -> void:
 func _on_GameOverTimer_timeout() -> void:
     message_screen.update_screen_state(message_screen.SCREEN_STATE.GAMEOVER)
     menu_handler.set_menu_active(true)
+    score_handler.load_high_score()
     snake.queue_free()
     fruit.queue_free()
     update()

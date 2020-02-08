@@ -24,10 +24,49 @@ bg_color = Color( 0, 0, 0, 1 )
 margin_right = 190.0
 margin_bottom = 368.0
 script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HighScoreVBox" type="VBoxContainer" parent="."]
+anchor_right = 1.0
+margin_bottom = 100.0
+rect_min_size = Vector2( 0, 100 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HighScoreContainer" type="PanelContainer" parent="HighScoreVBox"]
+margin_right = 190.0
+margin_bottom = 31.0
+rect_min_size = Vector2( 0, 31 )
+custom_styles/panel = SubResource( 1 )
+
+[node name="HighScoreTitle" type="Label" parent="HighScoreVBox/HighScoreContainer"]
+margin_left = 10.0
+margin_right = 180.0
+margin_bottom = 30.0
+custom_fonts/font = ExtResource( 2 )
+custom_colors/font_color = Color( 0.776471, 0.901961, 0.00784314, 1 )
+text = "HIGH:"
+
+[node name="HighScoreNumber" type="Label" parent="HighScoreVBox/HighScoreContainer"]
+margin_left = 10.0
+margin_right = 180.0
+margin_bottom = 30.0
+custom_fonts/font = ExtResource( 2 )
+custom_colors/font_color = Color( 0.776471, 0.901961, 0.00784314, 1 )
+text = "000000"
+align = 2
 
 [node name="ScoreVBox" type="VBoxContainer" parent="."]
 anchor_right = 1.0
+margin_top = 48.0
+margin_bottom = 148.0
 rect_min_size = Vector2( 0, 100 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="ScoreContainer" type="PanelContainer" parent="ScoreVBox"]
 margin_right = 190.0
@@ -53,9 +92,12 @@ text = "000000"
 align = 2
 
 [node name="LengthVBox" type="VBoxContainer" parent="."]
-margin_top = 48.0
+margin_top = 96.0
 margin_right = 190.0
-margin_bottom = 79.0
+margin_bottom = 127.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="LengthContainer" type="PanelContainer" parent="LengthVBox"]
 margin_right = 190.0

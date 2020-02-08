@@ -23,6 +23,7 @@ config/icon="res://icon.png"
 [autoload]
 
 Settings="*res://scripts/Settings.gd"
+FileHandler="*res://scripts/FileHandler.gd"
 
 [display]
 
